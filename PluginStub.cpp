@@ -18,7 +18,7 @@
 
 #include "PluginStub.h"
 
-#include "utils/Logger.h"
+#include <utils/Logger.h>
 
 Tomahawk::InfoSystem::StubPlugin::StubPlugin()
 {
@@ -32,10 +32,34 @@ Tomahawk::InfoSystem::StubPlugin::~StubPlugin()
 }
 
 
+#include <ViewPage.h>
+#include <ViewManager.h>
+#include <QLabel>
+
+class StubWidget : public Tomahawk::ViewPage
+{
+public:
+    StubWidget(QObject* parent)
+//         : ViewPage(parent)
+    {
+        m_widget = (QWidget*) (new QLabel("Plugin Foobar"));
+    }
+
+    virtual QWidget* widget() { return m_widget; }
+    virtual Tomahawk::playlistinterface_ptr playlistInterface() const { return Tomahawk::playlistinterface_ptr(); }
+    virtual QString title() const { return QString("Great title from Plugin"); }
+    virtual QString description() const { return QString("Great description from Plugin"); }
+    virtual bool jumpToCurrentTrack() { return false; }
+
+private:
+    QWidget* m_widget;
+};
+
 void
 Tomahawk::InfoSystem::StubPlugin::init()
 {
     tDebug() << Q_FUNC_INFO;
+    QMetaObject::invokeMethod( ViewManager::instance(), "addDynamicPage", Qt::QueuedConnection, Q_ARG( QString, "pluginStubPage" ), Q_ARG( ViewPage*, new StubWidget( 0 ) ) );
 }
 
 
