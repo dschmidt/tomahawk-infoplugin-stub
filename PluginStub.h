@@ -42,6 +42,9 @@ protected slots:
     virtual void getInfo( Tomahawk::InfoSystem::InfoRequestData requestData );
     virtual void notInCacheSlot( Tomahawk::InfoSystem::InfoStringHash criteria, Tomahawk::InfoSystem::InfoRequestData requestData );
     virtual void pushInfo( Tomahawk::InfoSystem::InfoPushData pushData );
+
+private slots:
+    void addViewPage();
 };
 
 }

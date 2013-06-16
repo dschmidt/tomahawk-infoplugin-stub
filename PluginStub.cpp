@@ -35,6 +35,7 @@ Tomahawk::InfoSystem::StubPlugin::~StubPlugin()
 #include <ViewPage.h>
 #include <ViewManager.h>
 #include <QLabel>
+#include <QCoreApplication>
 
 class StubWidget : public Tomahawk::ViewPage
 {
@@ -55,11 +56,26 @@ private:
     QWidget* m_widget;
 };
 
+
 void
 Tomahawk::InfoSystem::StubPlugin::init()
 {
     tDebug() << Q_FUNC_INFO;
-    QMetaObject::invokeMethod( ViewManager::instance(), "addDynamicPage", Qt::QueuedConnection, Q_ARG( QString, "pluginStubPage" ), Q_ARG( ViewPage*, new StubWidget( 0 ) ) );
+
+    // HACK: we wait for Tomahawk (the MainWindow with the ViewManager to be ready) and use the DirectConnection to make addViewPage be called from the GUI thread
+    connect(QCoreApplication::instance(), SIGNAL( tomahawkLoaded() ), SLOT( addViewPage() ), Qt::DirectConnection );
+}
+
+
+void
+Tomahawk::InfoSystem::StubPlugin::addViewPage()
+{
+    tLog() << Q_FUNC_INFO;
+
+    // don't add this twice, for some reason tomahawkLoaded() is fired more than once
+    disconnect(QCoreApplication::instance(), SIGNAL( tomahawkLoaded() ), this, SLOT( addViewPage() ) );
+
+    ViewManager::instance()->addDynamicPage("Plugin Stub Page", new StubWidget( this ) );
 }
 
 
